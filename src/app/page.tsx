@@ -1,10 +1,137 @@
-import './globals.css';
-import LandingPage from './home/page';
+'use client'; // Carlotta
+import { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
 
-export default function Home() {
+let socket: any;
+
+export default function EmojiMovieQuiz() {
+  const [emoji, setEmoji] = useState('🎬❓');
+  const [input, setInput] = useState('');
+  const [messages, setMessages] = useState<string[]>([]);
+  const [score, setScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [gameStarted, setGameStarted] = useState(false);
+  const [gameDuration, setGameDuration] = useState(120); // default 2 min (in seconds)
+
+  useEffect(() => {
+    socket = io();
+
+    socket.on('emoji', (newEmoji: string) => {
+      setEmoji(newEmoji);
+    });
+
+    socket.on('answerResult', ({ correct }: { correct: boolean }) => {
+      if (correct) {
+        setScore((prev) => prev + 1);
+        socket.emit('next'); // Neue Frage holen bei richtiger Antwort
+      }
+    });
+
+    socket.on('answerBroadcast', (message: string) => {
+      setMessages((prev) => [...prev, `💬 ${message}`]);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!gameStarted || timeLeft === null) return;
+
+    if (timeLeft <= 0) {
+      setGameStarted(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setTimeLeft((prev) => (prev !== null ? prev - 1 : null));
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [timeLeft, gameStarted]);
+
+  const startGame = () => {
+    setGameStarted(true);
+    setScore(0);
+    setMessages([]);
+    setTimeLeft(gameDuration);
+    socket.emit('startGame');
+  };
+
+  const sendAnswer = () => {
+    if (!input.trim()) return;
+    socket.emit('answer', input);
+    setInput('');
+  };
+
+  const formatTime = (seconds: number) => {
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    return `${min}:${sec.toString().padStart(2, '0')}`;
+  };
+
   return (
-    <div>
-      <LandingPage />
-    </div>
+    <main className="flex flex-col items-center justify-center min-h-screen p-6 text-center">
+      <h1 className="text-3xl font-bold mb-4">🎬 Emoji-Film-Quiz (Multiplayer)</h1>
+
+      {!gameStarted ? (
+        <div className="mb-6">
+          <h2 className="text-xl mb-2">Spieldauer wählen:</h2>
+          <div className="flex gap-4 mb-4">
+            <button
+              className={`px-4 py-2 rounded ${gameDuration === 30 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+              onClick={() => setGameDuration(30)}
+            >
+              30 Sekunden
+            </button>
+            <button
+              className={`px-4 py-2 rounded ${gameDuration === 60 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+              onClick={() => setGameDuration(60)}
+            >
+              1 Minute
+            </button>
+          </div>
+          <button
+            className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition"
+            onClick={startGame}
+          >
+            Spiel starten
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className="text-6xl mb-4">{emoji}</div>
+          <div className="text-lg mb-2">⏱️ Zeit: {formatTime(timeLeft!)}</div>
+          <div className="text-lg mb-4">⭐ Punkte: {score}</div>
+
+          <input
+            className="border p-2 text-lg w-72 mb-3"
+            placeholder="Filmtitel eingeben..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && sendAnswer()}
+          />
+          <div className="flex gap-4 mb-4">
+            <button
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+              onClick={sendAnswer}
+            >
+              Senden
+            </button>
+
+          </div>
+
+          <div className="mt-6">
+            <h2 className="text-xl mb-2">Antworten anderer:</h2>
+            <ul className="text-left max-h-40 overflow-y-auto w-80">
+              {messages.map((m, i) => (
+                <li key={i}>{m}</li>
+              ))}
+            </ul>
+          </div>
+        </>
+      )}
+    </main>
   );
 }
