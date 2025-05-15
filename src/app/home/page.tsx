@@ -6,7 +6,7 @@ export default function LandingPage() {
         <p className="text-base md:text-lg mx-4 md:mx-32 mb-6 md:mb-10">
           Stell dein Filmwissen auf die Probe! Bei Cinemoji musst du bekannte Filme allein anhand von clever kombinierten Emojis erraten. Ob Klassiker oder Blockbuster – erkennst du sie alle? Einfach, witzig und perfekt für zwischendurch!
         </p>
-        <button className="bg-[var(--green)] text-[var(--foreground)] font-bold py-3 px-6 md:py-5 md:px-10 rounded-full text-base md:text-lg">
+        <button className="bg-[var(--green)] hover:bg-[var(--darkgreen)] text-[var(--foreground)] font-bold py-3 px-6 md:py-5 md:px-10 rounded-full text-base md:text-lg">
           Jetzt spielen!
         </button>
       </div>
