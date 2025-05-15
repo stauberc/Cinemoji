@@ -26,7 +26,6 @@ app.prepare().then(() => {
   {"emoji": "🐼🥋", "movie": "Kung Fu Panda"},
   {"emoji": "👨‍🚀🌌","movie": "Interstellar"},
   {"emoji": "🦖🦕","movie": "Jurassic Park"},
-  {"emoji": "👨‍🍳🍔","movie": "Ratatouille"},
   {"emoji": "👩‍🎤🎤","movie": "A Star is Born"},
   {"emoji": "🧙‍♂️⚡️","movie": "Harry Potter"},
   {"emoji": "🐉🔥","movie": "Drachenzähmen leicht gemacht"},
