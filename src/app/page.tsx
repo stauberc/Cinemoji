@@ -1,137 +1,61 @@
-'use client'; // Carlotta
-import { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
+import Link from "next/link";//Luna
 
-let socket: any;
-
-export default function EmojiMovieQuiz() {
-  const [emoji, setEmoji] = useState('🎬❓');
-  const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<string[]>([]);
-  const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState<number | null>(null);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [gameDuration, setGameDuration] = useState(120); // default 2 min (in seconds)
-
-  useEffect(() => {
-    socket = io();
-
-    socket.on('emoji', (newEmoji: string) => {
-      setEmoji(newEmoji);
-    });
-
-    socket.on('answerResult', ({ correct }: { correct: boolean }) => {
-      if (correct) {
-        setScore((prev) => prev + 1);
-        socket.emit('next'); // Neue Frage holen bei richtiger Antwort
-      }
-    });
-
-    socket.on('answerBroadcast', (message: string) => {
-      setMessages((prev) => [...prev, `💬 ${message}`]);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!gameStarted || timeLeft === null) return;
-
-    if (timeLeft <= 0) {
-      setGameStarted(false);
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setTimeLeft((prev) => (prev !== null ? prev - 1 : null));
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [timeLeft, gameStarted]);
-
-  const startGame = () => {
-    setGameStarted(true);
-    setScore(0);
-    setMessages([]);
-    setTimeLeft(gameDuration);
-    socket.emit('startGame');
-  };
-
-  const sendAnswer = () => {
-    if (!input.trim()) return;
-    socket.emit('answer', input);
-    setInput('');
-  };
-
-  const formatTime = (seconds: number) => {
-    const min = Math.floor(seconds / 60);
-    const sec = seconds % 60;
-    return `${min}:${sec.toString().padStart(2, '0')}`;
-  };
-
+export default function LandingPage() {
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-6 text-center">
-      <h1 className="text-3xl font-bold mb-4">🎬 Emoji-Film-Quiz (Multiplayer)</h1>
+    <div>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[var(--background)] text-[var(--foreground)] p-4 md:p-8 text-center">
+        <h1 className="text-2xl md:text-4xl">Cinemoji</h1>
+        <p className="text-base md:text-lg mx-4 md:mx-32 mb-6 md:mb-10">
+          Stell dein Filmwissen auf die Probe! Bei Cinemoji musst du bekannte Filme allein anhand von clever kombinierten Emojis erraten. Ob Klassiker oder Blockbuster – erkennst du sie alle? Einfach, witzig und perfekt für zwischendurch!
+        </p>
+        <Link href="/game" className="bg-[var(--green)] hover:bg-[var(--darkgreen)] text-[var(--foreground)] font-bold py-3 px-6 md:py-5 md:px-10 rounded-full text-base md:text-lg">
+          Jetzt spielen! 
+        </Link>
+      </div>
 
-      {!gameStarted ? (
-        <div className="mb-6">
-          <h2 className="text-xl mb-2">Spieldauer wählen:</h2>
-          <div className="flex gap-4 mb-4">
-            <button
-              className={`px-4 py-2 rounded ${gameDuration === 30 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-              onClick={() => setGameDuration(30)}
-            >
-              30 Sekunden
-            </button>
-            <button
-              className={`px-4 py-2 rounded ${gameDuration === 60 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
-              onClick={() => setGameDuration(60)}
-            >
-              1 Minute
-            </button>
-          </div>
-          <button
-            className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 transition"
-            onClick={startGame}
-          >
-            Spiel starten
-          </button>
-        </div>
-      ) : (
-        <>
-          <div className="text-6xl mb-4">{emoji}</div>
-          <div className="text-lg mb-2">⏱️ Zeit: {formatTime(timeLeft!)}</div>
-          <div className="text-lg mb-4">⭐ Punkte: {score}</div>
-
-          <input
-            className="border p-2 text-lg w-72 mb-3"
-            placeholder="Filmtitel eingeben..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && sendAnswer()}
-          />
-          <div className="flex gap-4 mb-4">
-            <button
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-              onClick={sendAnswer}
-            >
-              Senden
-            </button>
-
-          </div>
-
-          <div className="mt-6">
-            <h2 className="text-xl mb-2">Antworten anderer:</h2>
-            <ul className="text-left max-h-40 overflow-y-auto w-80">
-              {messages.map((m, i) => (
-                <li key={i}>{m}</li>
-              ))}
-            </ul>
-          </div>
-        </>
-      )}
-    </main>
+      <div className="flex flex-col min-h-screen bg-[var(--grey)] text-[var(--foreground)] p-4 md:p-8">
+        <h2 className="text-xl md:text-2xl mb-2">Game Rules</h2>
+        <p className="font-semibold text-base md:text-lg">Ziel des Spiels:</p>
+        <p className="text-sm md:text-base mb-2">
+          Errate den Filmtitel – nur anhand einer Reihe von Emojis! Keine Hinweise, keine Kategorien. Nur dein Emoji-Instinkt und dein Filmwissen zählen.
+        </p>
+        <p className="font-semibold text-base md:text-lg mt-2">So funktionierts:</p>
+        <ol className="list-decimal ml-4 md:ml-6 mb-4">
+          <li>
+            Ein Emoji-Rätsel erscheint.
+            <p className="ml-4 md:ml-10 mb-3 md:mb-5 text-sm md:text-base">
+              Jedes Rätsel steht für einen bekannten Film – dargestellt nur mit Emojis.
+            </p>
+          </li>
+          <li>
+            Du gibst deinen Tipp ein.
+            <p className="ml-4 md:ml-10 mb-3 md:mb-5 text-sm md:text-base">
+              Denk nach, tippe den Filmtitel ein und bestätige deine Antwort.
+            </p>
+          </li>
+          <li>
+            Richtig oder falsch?
+            <p className="ml-4 md:ml-10 mb-3 md:mb-5 text-sm md:text-base">
+              Bei einer richtigen Antwort geht’s direkt weiter zum nächsten Rätsel.
+            </p>
+            <p className="ml-4 md:ml-10 mb-3 md:mb-5 text-sm md:text-base">
+              Bei einer falschen Antwort kannst du es nochmal versuchen – oder auflösen lassen.
+            </p>
+          </li>
+          <li>
+            Ziel: So viele Filme wie möglich erkennen!
+            <p className="ml-4 md:ml-10 mb-3 md:mb-5 text-sm md:text-base">
+              Fordere dich selbst heraus und knacke dein persönliches Highscore!
+            </p>
+          </li>
+        </ol>
+        <p className="font-semibold text-base md:text-lg mt-2">Tipps</p>
+        <ul className="list-none ml-0 pl-0 space-y-2 text-sm md:text-base">
+          <li>Achte auf Reihenfolge und Kombination der Emojis.</li>
+          <li>Manche Rätsel sind wörtlich, andere eher kreativ gedacht.</li>
+          <li>Kein Stress – Cinemoji ist zum Spaß da!</li>
+        </ul>
+      </div>
+    </div>
   );
 }
