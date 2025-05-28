@@ -1,15 +1,19 @@
 import Link from "next/link";//Luna
+import Header from "./components/header";
+import Footer from "./components/footer"; //Luna
+import './globals.css';
 
 export default function LandingPage() {
   return (
     <div>
+      <Header />
       <div className="flex flex-col items-center justify-center min-h-screen bg-[var(--background)] text-[var(--foreground)] p-4 md:p-8 text-center">
         <h1 className="text-2xl md:text-4xl">Cinemoji</h1>
         <p className="text-base md:text-lg mx-4 md:mx-32 mb-6 md:mb-10">
           Stell dein Filmwissen auf die Probe! Bei Cinemoji musst du bekannte Filme allein anhand von clever kombinierten Emojis erraten. Ob Klassiker oder Blockbuster – erkennst du sie alle? Einfach, witzig und perfekt für zwischendurch!
         </p>
         <Link href="/game" className="bg-[var(--green)] hover:bg-[var(--darkgreen)] text-[var(--foreground)] font-bold py-3 px-6 md:py-5 md:px-10 rounded-full text-base md:text-lg">
-          Jetzt spielen! 
+          Jetzt spielen!
         </Link>
       </div>
 
@@ -56,6 +60,7 @@ export default function LandingPage() {
           <li>Kein Stress – Cinemoji ist zum Spaß da!</li>
         </ul>
       </div>
+      <Footer />
     </div>
   );
 }
