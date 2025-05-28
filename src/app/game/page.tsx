@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
+import Header from '../components/header'; //Luna
+import Footer from '../components/footer';
 
 interface FinalScore {
   id: string;
@@ -67,6 +69,7 @@ export default function EmojiMovieQuiz() {
           value={usernameInput}
           onChange={e => setUsernameInput(e.target.value)}
         />
+        
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded"
           onClick={() => {
@@ -123,6 +126,61 @@ export default function EmojiMovieQuiz() {
           </div>
         </>
       )}
+      
+  return (
+    <div>
+      < Header /> {/*Luna*/}
+      <main className="flex flex-col items-center justify-center min-h-screen p-6 text-center mt-20">
+        <h1 className="text-3xl font-bold mb-4">Emoji-Film-Quiz (Multiplayer)</h1>
+
+        {!gameStarted ? (
+          <div className="mb-6">
+            <h2 className="text-xl mb-2">Spieldauer wählen:</h2>
+            <div className="flex gap-4 mb-4">
+              <button className={`px-4 py-2 rounded ${gameDuration === 30 ? 'bg-[var(--darkgreen)] text-white' : 'bg-gray-200'}`} onClick={() => setGameDuration(30)}>
+                30 Sekunden
+              </button>
+              <button className={`px-4 py-2 rounded ${gameDuration === 60 ? 'bg-[var(--darkgreen)] text-white' : 'bg-gray-200'}`} onClick={() => setGameDuration(60)}>
+                1 Minute
+              </button>
+            </div>
+            <div className="flex justify-center">
+              <button className="bg-[var(--green)] text-[var(--foreground)] px-6 py-3 rounded hover:bg-[var(--darkgreen)] transition" onClick={startGame}>
+                Spiel starten
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="text-6xl mb-4">{emoji}</div>
+            <div className="text-lg mb-4">⏱️ Zeit: {formatTime(timeLeft!)}</div>
+            <div className="text-lg mb-2">⭐ Punkte: {score}</div>
+
+            <input
+              className="border p-2 text-lg w-72 mb-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--green)]"
+              placeholder="Filmtitel eingeben..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && sendAnswer()}
+            />
+            <div className="flex gap-4 mb-4">
+              <button className="bg-[var(--green)] text-[var(--foreground)] px-4 py-2 rounded hover:bg-[var(--darkgreen)] transition" onClick={sendAnswer}>
+                Senden
+              </button>
+            </div>
+
+            <div className="mt-6">
+              <h2 className="text-xl mb-2">Antworten anderer:</h2>
+              <ul className="text-left max-h-40 overflow-y-auto w-80">
+                {messages.map((m, i) => (
+                  <li key={i}>{m}</li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+      </main>
+      <Footer /> {/*Luna*/}
     </div>
   );
 }
