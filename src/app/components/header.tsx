@@ -22,6 +22,11 @@ export default function Header() {
               Kontakte
             </Link>
           </li>
+          <li>
+            <Link href="/previously" className="hover:text-white">
+              Rückblick
+            </Link>
+          </li>
         </ul>
       </nav>
     </header>
