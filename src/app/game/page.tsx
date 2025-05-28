@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import Header from '../components/header'; //Luna
+import Header from '../components/header'; // Luna
 import Footer from '../components/footer';
 
 interface FinalScore {
@@ -22,16 +22,17 @@ export default function EmojiMovieQuiz() {
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState<string | null>(null);
   const [usernameInput, setUsernameInput] = useState('');
+  const [gameStarted, setGameStarted] = useState(false);
+  const [gameDuration, setGameDuration] = useState(30);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
-  // Login-Check beim Laden
+  // Login-Check
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
-    if (storedUsername) {
-      setUsername(storedUsername);
-    }
+    if (storedUsername) setUsername(storedUsername);
   }, []);
 
-  // Socket erst verbinden, wenn eingeloggt
+  // Socket initialisieren
   useEffect(() => {
     if (!username) return;
 
@@ -43,6 +44,9 @@ export default function EmojiMovieQuiz() {
     socket.on('gameStarting', () => {
       setLoading(false);
       setScore(0);
+      setMessages([]);
+      setGameStarted(true);
+      setTimeLeft(gameDuration);
     });
     socket.on('emoji', (e: string) => setEmoji(e));
     socket.on('answerBroadcast', (msg: string) => setMessages((prev) => [...prev, `💬 ${msg}`]));
@@ -50,7 +54,24 @@ export default function EmojiMovieQuiz() {
     socket.on('finalScores', setFinalScores);
 
     return () => socket.disconnect();
-  }, [username]);
+  }, [username, gameDuration]);
+
+  // Countdown
+  useEffect(() => {
+    if (!gameStarted || timeLeft === null) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev !== null && prev > 1) return prev - 1;
+        clearInterval(timer);
+        setGameStarted(false);
+        socket.emit('endGame');
+        return 0;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [gameStarted, timeLeft]);
 
   const sendAnswer = () => {
     if (!input.trim()) return;
@@ -58,7 +79,14 @@ export default function EmojiMovieQuiz() {
     setInput('');
   };
 
-  // Login-Formular anzeigen, wenn nicht eingeloggt
+  const startGame = () => {
+    socket.emit('startGame', { duration: gameDuration });
+  };
+
+  const formatTime = (seconds: number) =>
+    `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+
+  // Login-Formular
   if (!username) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -69,7 +97,6 @@ export default function EmojiMovieQuiz() {
           value={usernameInput}
           onChange={e => setUsernameInput(e.target.value)}
         />
-        
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded"
           onClick={() => {
@@ -85,71 +112,59 @@ export default function EmojiMovieQuiz() {
     );
   }
 
+  // Finale Punkteliste
   if (finalScores) {
     const max = Math.max(...finalScores.map((s) => s.score));
     const winners = finalScores.filter((s) => s.score === max);
 
     return (
-      <div className="p-6 text-center">
-        <h1 className="text-3xl mb-4">🏁 Spiel beendet!</h1>
-        <p>{winners.length === 1 ? `🎉 Gewinner: ${winners[0].username}` : `🎉 Gleichstand: ${winners.map((w) => w.username).join(', ')}`}</p>
-        <ul className="mt-4">
-          {finalScores.map((s) => <li key={s.id}>{s.username}: {s.score} Punkte</li>)}
-        </ul>
+      <div>
+        <Header />
+        <main className="p-6 text-center">
+          <h1 className="text-3xl mb-4">🏁 Spiel beendet!</h1>
+          <p>
+            {winners.length === 1
+              ? `🎉 Gewinner: ${winners[0].username}`
+              : `🎉 Gleichstand: ${winners.map((w) => w.username).join(', ')}`}
+          </p>
+          <ul className="mt-4">
+            {finalScores.map((s) => (
+              <li key={s.id}>{s.username}: {s.score} Punkte</li>
+            ))}
+          </ul>
+        </main>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="p-6 text-center">
-      <div className="text-right mb-2 text-sm">Eingeloggt als: <b>{username}</b></div>
-      {loading ? (
-        <h2 className="text-xl">⏳ Warten auf weitere Spieler ...</h2>
-      ) : (
-        <>
-          <h1 className="text-3xl font-bold mb-4">🎬 Emoji-Film-Quiz</h1>
-          <div className="text-6xl mb-4">{emoji}</div>
-          <div className="text-lg mb-2">Punkte: {score}</div>
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && sendAnswer()}
-            className="border p-2 text-lg mb-4"
-            placeholder="Filmtitel eingeben..."
-          />
-          <button onClick={sendAnswer} className="bg-blue-600 text-white px-4 py-2 rounded">Senden</button>
-          <div className="mt-6">
-            <h2 className="text-xl mb-2">Antworten:</h2>
-            <ul className="max-h-40 overflow-y-auto">
-              {messages.map((m, i) => <li key={i}>{m}</li>)}
-            </ul>
-          </div>
-        </>
-      )}
-      
-  return (
     <div>
-      < Header /> {/*Luna*/}
+      <Header />
       <main className="flex flex-col items-center justify-center min-h-screen p-6 text-center mt-20">
-        <h1 className="text-3xl font-bold mb-4">Emoji-Film-Quiz (Multiplayer)</h1>
-
+        <div className="text-right mb-2 text-sm w-full max-w-xl text-[var(--foreground)]">
+          Eingeloggt als: <b>{username}</b>
+        </div>
         {!gameStarted ? (
-          <div className="mb-6">
-            <h2 className="text-xl mb-2">Spieldauer wählen:</h2>
-            <div className="flex gap-4 mb-4">
-              <button className={`px-4 py-2 rounded ${gameDuration === 30 ? 'bg-[var(--darkgreen)] text-white' : 'bg-gray-200'}`} onClick={() => setGameDuration(30)}>
-                30 Sekunden
-              </button>
-              <button className={`px-4 py-2 rounded ${gameDuration === 60 ? 'bg-[var(--darkgreen)] text-white' : 'bg-gray-200'}`} onClick={() => setGameDuration(60)}>
-                1 Minute
-              </button>
-            </div>
-            <div className="flex justify-center">
+          loading ? (
+            <h2 className="text-xl">⏳ Warten auf weitere Spieler ...</h2>
+          ) : (
+            <>
+              <h1 className="text-3xl font-bold mb-4">🎬 Emoji-Film-Quiz</h1>
+              <h2 className="text-xl mb-2">Spieldauer wählen:</h2>
+              <div className="flex gap-4 mb-4">
+                <button className={`px-4 py-2 rounded ${gameDuration === 30 ? 'bg-[var(--darkgreen)] text-white' : 'bg-gray-200'}`} onClick={() => setGameDuration(30)}>
+                  30 Sekunden
+                </button>
+                <button className={`px-4 py-2 rounded ${gameDuration === 60 ? 'bg-[var(--darkgreen)] text-white' : 'bg-gray-200'}`} onClick={() => setGameDuration(60)}>
+                  1 Minute
+                </button>
+              </div>
               <button className="bg-[var(--green)] text-[var(--foreground)] px-6 py-3 rounded hover:bg-[var(--darkgreen)] transition" onClick={startGame}>
                 Spiel starten
               </button>
-            </div>
-          </div>
+            </>
+          )
         ) : (
           <>
             <div className="text-6xl mb-4">{emoji}</div>
@@ -180,7 +195,7 @@ export default function EmojiMovieQuiz() {
           </>
         )}
       </main>
-      <Footer /> {/*Luna*/}
+      <Footer />
     </div>
   );
 }
