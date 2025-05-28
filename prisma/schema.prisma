@@ -1,0 +1,36 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Movie {
+  id    Int    @id @default(autoincrement())
+  emoji String
+  title String
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  username String   @unique
+  sessions Session[]
+  scores   Score[]
+}
+
+model Session {
+  id        Int    @id @default(autoincrement())
+  user      User   @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt DateTime @default(now())
+}
+
+model Score {
+  id        Int    @id @default(autoincrement())
+  user      User   @relation(fields: [userId], references: [id])
+  userId    Int
+  points    Int
+  createdAt DateTime @default(now())
+}
