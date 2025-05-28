@@ -1,4 +1,4 @@
-import Header from "../components/header"; //Luna
+import Header from "../components/header"; //Design Luna
 import Footer from "../components/footer";
 
 export default function previously() {
