@@ -11,6 +11,8 @@ const handle = app.getRequestHandler();
 const players = {};
 let current = null;
 let isGameRunning = false;
+let currentSessionId = null;
+let currentRoundId = null;
 
 app.prepare().then(() => {
   const server = createServer((req, res) => {
@@ -26,6 +28,16 @@ app.prepare().then(() => {
     const randomIndex = Math.floor(Math.random() * count);
     current = await prisma.movie.findFirst({ skip: randomIndex });
 
+  const round = await prisma.round.create({
+    data: {
+      sessionId: currentSessionId,
+      emoji: current.emoji,
+      correctAnswer: current.title,
+    },
+  });
+  currentRoundId = round.id;
+
+
     io.emit('gameStarting');
     setTimeout(() => {
       if (current) {
@@ -37,7 +49,7 @@ app.prepare().then(() => {
   function checkIfGameCanStart() {
     const playerCount = Object.keys(players).length;
     console.log('🔄 Spieler online:', playerCount);
-    io.emit('playerListUpdate', playerCount); // ➕ für Clientanzeige
+    io.emit('playerListUpdate', playerCount);
 
     if (playerCount >= 2 && !isGameRunning) {
       startGame();
@@ -48,8 +60,12 @@ app.prepare().then(() => {
   }
 
   io.on('connection', async (socket) => {
-    const username = socket.handshake.query.username;
-    if (!username) return socket.disconnect();
+    if (!currentSessionId) {
+      const session = await prisma.session.create({ data: { userId: user.id } });
+      currentSessionId = session.id;
+      console.log('📌 Neue Session erstellt mit ID:', currentSessionId);
+    }
+
 
     console.log('✅ Neuer Spieler:', username);
 
@@ -60,7 +76,11 @@ app.prepare().then(() => {
 
     players[socket.id] = { score: 0, username, userId: user.id };
 
-    await prisma.session.create({ data: { userId: user.id } });
+    // Session nur einmal setzen (bei erstem User)
+    if (!currentSessionId) {
+      const session = await prisma.session.create({ data: { userId: user.id } });
+      currentSessionId = session.id;
+    }
 
     checkIfGameCanStart();
 
@@ -75,13 +95,33 @@ app.prepare().then(() => {
       const message = `${players[socket.id].username}: ${result} ${text}`;
       io.emit('answerBroadcast', message);
 
+      // Antwort speichern
+      await prisma.guess.create({
+        data: {
+          roundId: currentRoundId,
+          userId: players[socket.id].userId,
+          guess: text,
+          isCorrect: guess === correct,
+        },
+      });
+
       if (guess === correct) {
         players[socket.id].score++;
         socket.emit('scoreUpdate', players[socket.id].score);
 
+        // Neue Runde starten
         const count = await prisma.movie.count();
         const randomIndex = Math.floor(Math.random() * count);
         current = await prisma.movie.findFirst({ skip: randomIndex });
+
+        const newRound = await prisma.round.create({
+          data: {
+            sessionId: currentSessionId,
+            emoji: current.emoji,
+            correctAnswer: current.title,
+          },
+        });
+        currentRoundId = newRound.id;
 
         io.emit('emoji', current.emoji);
       }
