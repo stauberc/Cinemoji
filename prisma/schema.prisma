@@ -14,17 +14,19 @@ model Movie {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  username String   @unique
-  sessions Session[]
-  scores   Score[]
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
+  sessions  Session[]
+  scores    Score[]
+  guesses   Guess[]   @relation("UserGuesses")  // 💡 gleiche Relation-Name wie oben
 }
 
 model Session {
-  id        Int    @id @default(autoincrement())
-  user      User   @relation(fields: [userId], references: [id])
+  id        Int       @id @default(autoincrement())
+  user      User      @relation(fields: [userId], references: [id])
   userId    Int
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
+  rounds    Round[]   // ✅ hinzugefügt
 }
 
 model Score {
@@ -34,3 +36,25 @@ model Score {
   points    Int
   createdAt DateTime @default(now())
 }
+
+model Round {
+  id         Int       @id @default(autoincrement())
+  sessionId  Int
+  session    Session   @relation(fields: [sessionId], references: [id])
+  emoji      String
+  correctAnswer String
+  createdAt  DateTime  @default(now())
+  guesses    Guess[]
+}
+
+model Guess {
+  id        Int      @id @default(autoincrement())
+  roundId   Int
+  userId    Int
+  round     Round    @relation(fields: [roundId], references: [id])
+  user      User     @relation("UserGuesses", fields: [userId], references: [id])
+  guess     String
+  isCorrect Boolean
+  createdAt DateTime @default(now())
+}
+
