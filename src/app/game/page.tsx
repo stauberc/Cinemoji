@@ -33,7 +33,7 @@ export default function EmojiMovieQuiz() {
   // Socket initialisieren
   useEffect(() => {
     if (!username) return;
-
+// 
     socket = io({ query: { username } });
 
     socket.emit('readyToPlay');
