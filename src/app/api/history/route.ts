@@ -1,5 +1,5 @@
 // /app/api/history/route.ts
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';// carlotta
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();

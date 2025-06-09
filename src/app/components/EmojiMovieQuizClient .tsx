@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { io, Socket } from 'socket.io-client'; // Carlotta
+import { useSession, signIn, signOut } from 'next-auth/react'; // Carlotta
 
-interface FinalScore {
+interface FinalScore {//Lena
   id: string;
   shortId: string;
   username: string;
@@ -28,6 +28,7 @@ export default function EmojiMovieQuizClient() {
   const username = session?.user?.name ?? null;
 
   useEffect(() => {
+     //Carlotta
     if (!username || typeof window === 'undefined') return;
 
     socket = io({ query: { username } });
@@ -51,10 +52,10 @@ export default function EmojiMovieQuizClient() {
     return () => socket.disconnect();
   }, [username, gameDuration]);
 
-  useEffect(() => {
+  useEffect(() => { //Lena
     if (!gameStarted || timeLeft === null) return;
 
-    const timer = setInterval(() => {
+    const timer = setInterval(() => { //Lena
       setTimeLeft((prev) => {
         if (prev !== null && prev > 1) return prev - 1;
         clearInterval(timer);
@@ -65,7 +66,7 @@ export default function EmojiMovieQuizClient() {
       });
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => clearInterval(timer); //Lena
   }, [gameStarted, timeLeft]);
 
   const sendAnswer = () => {
@@ -74,11 +75,11 @@ export default function EmojiMovieQuizClient() {
     setInput('');
   };
 
-  const startGame = () => {
+  const startGame = () => { //Carlotta
     socket.emit('startGame', { duration: gameDuration });
   };
 
-  const formatTime = (seconds: number) =>
+  const formatTime = (seconds: number) =>  //Lena
     `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 
   if (status === 'loading') {
@@ -89,12 +90,7 @@ export default function EmojiMovieQuizClient() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-[var(--background)] text-[var(--foreground)]">
         <h1 className="text-2xl mb-4">Login</h1>
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-          onClick={() => signIn()}
-        >
-          Jetzt einloggen
-        </button>
+        <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={() => signIn()} >Jetzt einloggen</button>
       </div>
     );
   }
@@ -103,7 +99,7 @@ export default function EmojiMovieQuizClient() {
     const max = Math.max(...finalScores.map((s) => s.score));
     const winners = finalScores.filter((s) => s.score === max);
 
-    return (
+    return ( //Lena
       <main className="p-6 text-center">
         <h1 className="text-3xl mb-4">🏁 Spiel beendet!</h1>
         <p>
@@ -118,23 +114,15 @@ export default function EmojiMovieQuizClient() {
             </li>
           ))}
         </ul>
-        <button className="mt-6 underline text-blue-600" onClick={() => signOut()}>
-          Logout
-        </button>
+        <button className="mt-6 underline text-blue-600" onClick={() => signOut()}>Logout</button>
       </main>
     );
   }
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen p-6 text-center mt-20">
-      <div className="text-right mb-2 text-sm w-full max-w-xl text-[var(--foreground)]">
-        Eingeloggt als: <b>{username}</b>
-        <button
-          onClick={() => signOut()}
-          className="ml-4 underline text-red-500"
-        >
-          Logout
-        </button>
+      <div className="text-right mb-2 text-sm w-full max-w-xl text-[var(--foreground)]">Eingeloggt als: <b>{username}</b>
+        <button onClick={() => signOut()} className="ml-4 underline text-red-500" > Logout </button>
       </div>
       {!gameStarted ? (
         loading ? (
@@ -144,29 +132,10 @@ export default function EmojiMovieQuizClient() {
             <h1 className="text-3xl font-bold mb-4">🎬 Emoji-Film-Quiz</h1>
             <h2 className="text-xl mb-2">Spieldauer wählen:</h2>
             <div className="flex gap-4 mb-4">
-              <button
-                className={`px-4 py-2 rounded ${
-                  gameDuration === 30 ? 'bg-[var(--darkgreen)] text-white' : 'bg-gray-200'
-                }`}
-                onClick={() => setGameDuration(30)}
-              >
-                30 Sekunden
-              </button>
-              <button
-                className={`px-4 py-2 rounded ${
-                  gameDuration === 60 ? 'bg-[var(--darkgreen)] text-white' : 'bg-gray-200'
-                }`}
-                onClick={() => setGameDuration(60)}
-              >
-                1 Minute
-              </button>
+              <button className={`px-4 py-2 rounded ${ gameDuration === 30 ? 'bg-[var(--darkgreen)] text-white' : 'bg-gray-200' }`} onClick={() => setGameDuration(30)} > 30 Sekunden </button>
+              <button className={`px-4 py-2 rounded ${ gameDuration === 60 ? 'bg-[var(--darkgreen)] text-white' : 'bg-gray-200' }`} onClick={() => setGameDuration(60)} >1 Minute </button>
             </div>
-            <button
-              className="bg-[var(--green)] text-[var(--foreground)] px-6 py-3 rounded hover:bg-[var(--darkgreen)] transition"
-              onClick={startGame}
-            >
-              Spiel starten
-            </button>
+            <button className="bg-[var(--green)] text-[var(--foreground)] px-6 py-3 rounded hover:bg-[var(--darkgreen)] transition" onClick={startGame} > Spiel starten</button>
           </>
         )
       ) : (
@@ -177,20 +146,9 @@ export default function EmojiMovieQuizClient() {
           )}
           <div className="text-lg mb-2">⭐ Punkte: {score}</div>
 
-          <input
-            className="border p-2 text-lg w-72 mb-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--green)]"
-            placeholder="Filmtitel eingeben..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && sendAnswer()}
-          />
+          <input className="border p-2 text-lg w-72 mb-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--green)]" placeholder="Filmtitel eingeben..." value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && sendAnswer()} />
           <div className="flex gap-4 mb-4">
-            <button
-              className="bg-[var(--green)] text-[var(--foreground)] px-4 py-2 rounded hover:bg-[var(--darkgreen)] transition"
-              onClick={sendAnswer}
-            >
-              Senden
-            </button>
+            <button className="bg-[var(--green)] text-[var(--foreground)] px-4 py-2 rounded hover:bg-[var(--darkgreen)] transition" onClick={sendAnswer}>Senden</button>
           </div>
 
           <div className="mt-6">
