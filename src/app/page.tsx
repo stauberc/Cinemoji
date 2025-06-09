@@ -1,6 +1,7 @@
-import Link from "next/link";//Luna
+//Luna
+import Link from "next/link";
 import Header from "./components/header";
-import Footer from "./components/footer"; //Luna
+import Footer from "./components/footer";
 import './globals.css';
 
 export default function LandingPage() {
