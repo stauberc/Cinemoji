@@ -8,9 +8,21 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
+// Lena: Eingabeüberüfung
+  const validateUsername = (name: string) => {
+    const hasTwoLetters = (name.match(/[a-zA-Z]/g) || []).length >= 2;
+    const hasNumber = /\d/.test(name);
+    return name.trim().length > 0 && hasTwoLetters && hasNumber;
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!validateUsername(username)) {
+      setError('Der Benutzername muss mindestens 2 Buchstaben enthalten und mindestens eine Zahl.');
+      return;
+    }
 
     const result = await signIn('credentials', {
       username,
@@ -18,9 +30,9 @@ export default function LoginPage() {
     });
 
     if (result?.ok) {
-      router.push('/game'); // ✅ Weiterleitung nach erfolgreichem Login
+      router.push('/game');
     } else {
-      setError('Login fehlgeschlagen. Bitte Benutzernamen eingeben.');
+      setError('Login fehlgeschlagen. Bitte Benutzernamen prüfen.');
     }
   };
 
@@ -39,7 +51,10 @@ export default function LoginPage() {
           id="username"
           type="text"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => {
+            setUsername(e.target.value);
+            setError('');
+          }}
           className="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         />
