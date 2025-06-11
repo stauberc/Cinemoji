@@ -3,7 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "./components/header";
 import Footer from "./components/footer";
-import AuthProvider from "./components/AuthProvider"; // <- NEU
+import AuthProvider from "./components/AuthProvider"; 
+
+// Luna
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

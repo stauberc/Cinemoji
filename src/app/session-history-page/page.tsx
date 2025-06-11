@@ -1,5 +1,7 @@
-'use client'; // Carlotta
+'use client'; 
 import { useEffect, useState } from 'react';
+
+// Carlotta
 
 interface HistoryData {
   id: number;

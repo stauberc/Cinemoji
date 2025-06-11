@@ -3,6 +3,8 @@ const next = require('next');
 const { Server } = require('socket.io');
 const { PrismaClient } = require('@prisma/client');
 
+//Carlotta
+
 const prisma = new PrismaClient();
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });

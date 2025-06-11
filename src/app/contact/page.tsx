@@ -1,5 +1,6 @@
-import Header from "../components/header"; //Luna
+import Header from "../components/header"; 
 import Footer from "../components/footer";
+//Luna
 
 export default function contact() {
   return (

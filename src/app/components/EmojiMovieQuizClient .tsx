@@ -29,8 +29,8 @@ export default function EmojiMovieQuizClient() {
   const { data: session, status } = useSession();
   const username = session?.user?.name ?? null;
 
+  // Carlotta -- Anfang
   useEffect(() => {
-     //Carlotta
     if (!username || typeof window === 'undefined') return;
 
     socket = io({ query: { username } });//Baut die Verbindung zum Server auf und sendet den Benutzernamen
@@ -53,6 +53,7 @@ export default function EmojiMovieQuizClient() {
 
     return () => socket.disconnect();
   }, [username, gameDuration]);
+  // Carlotta -- Ende
 
   // Lena -- Anfang
   useEffect(() => {
@@ -73,7 +74,7 @@ export default function EmojiMovieQuizClient() {
   }, [gameStarted, timeLeft]);
 // Lena -- Ende
 
-
+  // Carlotta -- Anfang
   const sendAnswer = () => {
     if (!input.trim()) return;
     socket.emit('answer', input);
@@ -83,6 +84,7 @@ export default function EmojiMovieQuizClient() {
   const startGame = () => {
     socket.emit('startGame', { duration: gameDuration }); // Sendet die Dauer des Spiels an den Server
   };
+  // Carlotta -- Ende
 
   // Lena -- Anfang
   const formatTime = (seconds: number) =>  //Lena
@@ -136,6 +138,7 @@ export default function EmojiMovieQuizClient() {
         loading ? (
           <h2 className="text-xl">⏳ Warten auf weitere Spieler ...</h2>
         ) : (
+
           // Lena -- Anfang
           <>
             <h1 className="text-3xl font-bold mb-4">🎬 Emoji-Film-Quiz</h1>
@@ -151,6 +154,7 @@ export default function EmojiMovieQuizClient() {
         )
       ) : (
         <>
+        {/* Carlotta -- Anfang */}
           <div className="text-6xl mb-4">{emoji}</div>
           {timeLeft !== null && (
             <div className="text-lg mb-4">⏱️ Zeit: {formatTime(timeLeft)}</div>
@@ -172,6 +176,7 @@ export default function EmojiMovieQuizClient() {
           </div>
         </>
       )}
+      {/* Carlotta -- Ende */}
     </main>
   );
 }

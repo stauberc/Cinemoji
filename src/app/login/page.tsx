@@ -1,4 +1,4 @@
-'use client'; // Carlotta
+'use client';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -16,9 +16,11 @@ export default function LoginPage() {
   };
 // Lena -- Ende
 
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
 
     // Lena -- Anfang
     if (!validateUsername(username)) {
@@ -26,7 +28,8 @@ export default function LoginPage() {
       return;
     }
     // Lena -- Ende
-
+    
+    //Carlotta -- Anfang
     const result = await signIn('credentials', {
       username,
       redirect: false,
@@ -57,5 +60,6 @@ export default function LoginPage() {
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition" >Einloggen</button>
       </form>
     </div>
+    // Carlotta -- Ende
   );
 }

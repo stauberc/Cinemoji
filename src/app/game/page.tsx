@@ -1,4 +1,5 @@
-'use client'; // Carlotta
+'use client';
+// Carlotta
 
 import EmojiMovieQuizClient from "../components/EmojiMovieQuizClient ";
 

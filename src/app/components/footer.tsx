@@ -1,6 +1,7 @@
 import Link from "next/link";
+//Luna
 
-export default function Footer() { //Luna
+export default function Footer() { 
   return (
     <footer className="bg-[var(--green)] text-[var(--text1)] py-8">
       <div className="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm">
