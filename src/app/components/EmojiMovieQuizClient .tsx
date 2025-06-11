@@ -101,7 +101,7 @@ export default function EmojiMovieQuizClient() {
 
     return ( //Lena
       <main className="p-6 text-center">
-        <h1 className="text-3xl mb-4">🏁 Spiel beendet!</h1>
+        <h1 className="text-3xl mb-4 mt-12">🏁 Spiel beendet!</h1>
         <p>
           {winners.length === 1
             ? `🎉 Gewinner: ${winners[0].username}`

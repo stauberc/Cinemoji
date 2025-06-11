@@ -8,9 +8,6 @@ export default function Header() {
       <nav>
         <ul className="flex gap-4">
           <li>
-            <Link href="/" className="hover:text-white">Startseite</Link>
-          </li>
-          <li>
             <Link href="/game" className="hover:text-white">Game</Link>
           </li>
           <li>
