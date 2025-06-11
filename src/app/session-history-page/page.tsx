@@ -35,20 +35,22 @@ export default function HistoryPage() {
         <p className="text-gray-500">Noch keine Spielverläufe gespeichert.</p>
       )}
 
+      
       {sessions.map((session) => {
-        const allGuesses = session.rounds.flatMap((r) => r.guesses);
-        const players = Array.from(new Set(allGuesses.map((g) => g.user.username)));
+        const allGuesses = session.rounds.flatMap((r) => r.guesses); // Alle Vermutungen aus allen Runden der Sitzung sammeln
+        const players = Array.from(new Set(allGuesses.map((g) => g.user.username)));//doppelte entfernt
 
         const scores = allGuesses
-          .filter((g) => g.isCorrect)
-          .reduce((acc: Record<string, number>, guess) => {
+          .filter((g) => g.isCorrect)// Nur die korrekten Vermutungen berücksichtigen
+          .reduce((acc: Record<string, number>, guess) => { // Punkte für korrekte Vermutungen zählen
             const name = guess.user.username;
-            acc[name] = (acc[name] || 0) + 1;
+            acc[name] = (acc[name] || 0) + 1; // Erhöhe den Punktestand des Spielers
             return acc;
           }, {});
 
-        const sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-        const maxScore = sortedScores.length > 0 ? sortedScores[0][1] : 0;
+    // Sortiere die Spieler nach Punkten und finde die Gewinner
+        const sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]); // Nach Punkten absteigend sortieren
+        const maxScore = sortedScores.length > 0 ? sortedScores[0][1] : 0;// Höchste Punktzahl ermitteln
         const winners = sortedScores
           .filter(([, points]) => points === maxScore)
           .map(([name]) => name);

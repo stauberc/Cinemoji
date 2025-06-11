@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client'; // Carlotta
 import { useSession, signIn, signOut } from 'next-auth/react'; // Carlotta
 
-interface FinalScore {//Lena
+// Lena -- Anfang
+interface FinalScore {
   id: string;
   shortId: string;
   username: string;
   score: number;
 }
+// Lena -- Ende
 
 let socket: Socket;
 
@@ -31,7 +33,7 @@ export default function EmojiMovieQuizClient() {
      //Carlotta
     if (!username || typeof window === 'undefined') return;
 
-    socket = io({ query: { username } });
+    socket = io({ query: { username } });//Baut die Verbindung zum Server auf und sendet den Benutzernamen
     socket.emit('readyToPlay');
 
     socket.on('waitingForPlayers', () => setLoading(true));
@@ -42,8 +44,8 @@ export default function EmojiMovieQuizClient() {
       setGameStarted(true);
       setTimeLeft(gameDuration);
     });
-    socket.on('emoji', (e: string) => setEmoji(e));
-    socket.on('answerBroadcast', (msg: string) =>
+    socket.on('emoji', (e: string) => setEmoji(e)); //Emotes werden empfangen und gesetzt
+    socket.on('answerBroadcast', (msg: string) => //Die Antwort wird empfangen und in der Liste der Nachrichten angezeigt
       setMessages((prev) => [...prev, `💬 ${msg}`])
     );
     socket.on('scoreUpdate', setScore);
@@ -52,10 +54,11 @@ export default function EmojiMovieQuizClient() {
     return () => socket.disconnect();
   }, [username, gameDuration]);
 
-  useEffect(() => { //Lena
+  // Lena -- Anfang
+  useEffect(() => {
     if (!gameStarted || timeLeft === null) return;
 
-    const timer = setInterval(() => { //Lena
+    const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev !== null && prev > 1) return prev - 1;
         clearInterval(timer);
@@ -66,8 +69,10 @@ export default function EmojiMovieQuizClient() {
       });
     }, 1000);
 
-    return () => clearInterval(timer); //Lena
+    return () => clearInterval(timer);
   }, [gameStarted, timeLeft]);
+// Lena -- Ende
+
 
   const sendAnswer = () => {
     if (!input.trim()) return;
@@ -75,12 +80,13 @@ export default function EmojiMovieQuizClient() {
     setInput('');
   };
 
-  const startGame = () => { //Carlotta
-    socket.emit('startGame', { duration: gameDuration });
+  const startGame = () => {
+    socket.emit('startGame', { duration: gameDuration }); // Sendet die Dauer des Spiels an den Server
   };
 
+  // Lena -- Anfang
   const formatTime = (seconds: number) =>  //Lena
-    `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+    `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`; // Formatiert die Zeit in Minuten:Sekunden
 
   if (status === 'loading') {
     return <p className="text-center mt-10">Lade ...</p>;
@@ -97,12 +103,13 @@ export default function EmojiMovieQuizClient() {
 
   if (finalScores) {
     const max = Math.max(...finalScores.map((s) => s.score));
+    //Filtert die finalScores, um nur die Spieler mit dem höchsten Punktestand zu erhalten
     const winners = finalScores.filter((s) => s.score === max);
 
     return ( //Lena
       <main className="p-6 text-center">
         <h1 className="text-3xl mb-4 mt-12">🏁 Spiel beendet!</h1>
-        <p>
+        <p> 
           {winners.length === 1
             ? `🎉 Gewinner: ${winners[0].username}`
             : `🎉 Gleichstand: ${winners.map((w) => w.username).join(', ')}`}
@@ -118,6 +125,7 @@ export default function EmojiMovieQuizClient() {
       </main>
     );
   }
+  // Lena -- Ende
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen p-6 text-center mt-20">
@@ -128,6 +136,7 @@ export default function EmojiMovieQuizClient() {
         loading ? (
           <h2 className="text-xl">⏳ Warten auf weitere Spieler ...</h2>
         ) : (
+          // Lena -- Anfang
           <>
             <h1 className="text-3xl font-bold mb-4">🎬 Emoji-Film-Quiz</h1>
             <h2 className="text-xl mb-2">Spieldauer wählen:</h2>
@@ -135,6 +144,8 @@ export default function EmojiMovieQuizClient() {
               <button className={`px-4 py-2 rounded ${ gameDuration === 30 ? 'bg-[var(--darkgreen)] text-white' : 'bg-gray-200' }`} onClick={() => setGameDuration(30)} > 30 Sekunden </button>
               <button className={`px-4 py-2 rounded ${ gameDuration === 60 ? 'bg-[var(--darkgreen)] text-white' : 'bg-gray-200' }`} onClick={() => setGameDuration(60)} >1 Minute </button>
             </div>
+          {/* Lena -- Ende */}
+
             <button className="bg-[var(--green)] text-[var(--foreground)] px-6 py-3 rounded hover:bg-[var(--darkgreen)] transition" onClick={startGame} > Spiel starten</button>
           </>
         )

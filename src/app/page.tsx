@@ -1,13 +1,10 @@
 //Luna
 import Link from "next/link";
-import Header from "./components/header";
-import Footer from "./components/footer";
 import './globals.css';
 
 export default function LandingPage() {
   return (
     <div>
-      <Header />
       <div className="flex flex-col items-center justify-center min-h-screen bg-[var(--background)] text-[var(--foreground)] p-4 md:p-8 text-center">
         <h1 className="text-2xl md:text-4xl">Cinemoji</h1>
         <p className="text-base md:text-lg mx-4 md:mx-32 mb-6 md:mb-10">
@@ -61,7 +58,6 @@ export default function LandingPage() {
           <li>Kein Stress – Cinemoji ist zum Spaß da!</li>
         </ul>
       </div>
-      <Footer />
     </div>
   );
 }

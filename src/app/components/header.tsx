@@ -3,7 +3,7 @@ import Link from 'next/link'; //Luna
 export default function Header() {
   return (
     <header className="fixed top-0 left-0 w-full flex justify-between items-center p-4 bg-[var(--green)] text-[var(--foreground)]  z-50">
-      <div className="text-2xl font-bold">CINEMOJI</div>
+      <Link href="/" className="text-2xl font-bold">CINEMOJI </Link>
 
       <nav>
         <ul className="flex gap-4">
