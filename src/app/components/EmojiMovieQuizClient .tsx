@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client'; // Carlotta
 import { useSession, signIn, signOut } from 'next-auth/react'; // Carlotta
 
-interface FinalScore {//Lena
+// Lena -- Anfang
+interface FinalScore {
   id: string;
   shortId: string;
   username: string;
   score: number;
 }
+// Lena -- Ende
 
 let socket: Socket;
 
@@ -52,10 +54,11 @@ export default function EmojiMovieQuizClient() {
     return () => socket.disconnect();
   }, [username, gameDuration]);
 
-  useEffect(() => { //Lena
+  // Lena -- Anfang
+  useEffect(() => {
     if (!gameStarted || timeLeft === null) return;
 
-    const timer = setInterval(() => { //Lena
+    const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev !== null && prev > 1) return prev - 1;
         clearInterval(timer);
@@ -66,8 +69,9 @@ export default function EmojiMovieQuizClient() {
       });
     }, 1000);
 
-    return () => clearInterval(timer); //Lena
+    return () => clearInterval(timer);
   }, [gameStarted, timeLeft]);
+  // Lena -- Ende
 
   const sendAnswer = () => {
     if (!input.trim()) return;
@@ -79,7 +83,8 @@ export default function EmojiMovieQuizClient() {
     socket.emit('startGame', { duration: gameDuration });
   };
 
-  const formatTime = (seconds: number) =>  //Lena
+  // Lena -- Anfang
+  const formatTime = (seconds: number) =>
     `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 
   if (status === 'loading') {
@@ -99,7 +104,7 @@ export default function EmojiMovieQuizClient() {
     const max = Math.max(...finalScores.map((s) => s.score));
     const winners = finalScores.filter((s) => s.score === max);
 
-    return ( //Lena
+    return (
       <main className="p-6 text-center">
         <h1 className="text-3xl mb-4">🏁 Spiel beendet!</h1>
         <p>
@@ -118,6 +123,7 @@ export default function EmojiMovieQuizClient() {
       </main>
     );
   }
+  // Lena -- Ende
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen p-6 text-center mt-20">
@@ -130,11 +136,13 @@ export default function EmojiMovieQuizClient() {
         ) : (
           <>
             <h1 className="text-3xl font-bold mb-4">🎬 Emoji-Film-Quiz</h1>
+            {/* Lena -- Anfang */}
             <h2 className="text-xl mb-2">Spieldauer wählen:</h2>
             <div className="flex gap-4 mb-4">
               <button className={`px-4 py-2 rounded ${ gameDuration === 30 ? 'bg-[var(--darkgreen)] text-white' : 'bg-gray-200' }`} onClick={() => setGameDuration(30)} > 30 Sekunden </button>
               <button className={`px-4 py-2 rounded ${ gameDuration === 60 ? 'bg-[var(--darkgreen)] text-white' : 'bg-gray-200' }`} onClick={() => setGameDuration(60)} >1 Minute </button>
             </div>
+            {/* Lena -- Ende */}
             <button className="bg-[var(--green)] text-[var(--foreground)] px-6 py-3 rounded hover:bg-[var(--darkgreen)] transition" onClick={startGame} > Spiel starten</button>
           </>
         )

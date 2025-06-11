@@ -8,21 +8,24 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-// Lena: Eingabeüberüfung
+// Lena -- Anfang
   const validateUsername = (name: string) => {
     const hasTwoLetters = (name.match(/[a-zA-Z]/g) || []).length >= 2;
     const hasNumber = /\d/.test(name);
     return name.trim().length > 0 && hasTwoLetters && hasNumber;
   };
+// Lena -- Ende
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
+    // Lena -- Anfang
     if (!validateUsername(username)) {
       setError('Der Benutzername muss mindestens 2 Buchstaben enthalten und mindestens eine Zahl.');
       return;
     }
+    // Lena -- Ende
 
     const result = await signIn('credentials', {
       username,
